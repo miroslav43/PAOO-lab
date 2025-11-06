@@ -1,0 +1,35 @@
+# Build directories
+build/
+bin/
+CMakeFiles/
+
+# CMake generated files
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+# Compiled files
+*.o
+*.a
+*.so
+*.dylib
+*.out
+
+# Log files
+*.log
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# macOS
+.DS_Store
+
+# Executable
+StartupAccelerator
+
+
+

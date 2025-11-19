@@ -6,233 +6,294 @@
 #include <iostream>
 #include <utility>
 
-void printSeparator(const char *title)
-{
-    Logger::getInstance().logSeparator(title);
-}
-
-void demonstrateBasicConstructionDestruction()
-{
-    printSeparator("1. BASIC CONSTRUCTION & DESTRUCTION");
-
-    std::cout << "\nCreating a Project object:" << std::endl;
-    Project proj("AI Platform", 12, 150000.0);
-    proj.display();
-
-    std::cout << "\nCreating a Mentor object:" << std::endl;
-    Mentor mentor("John Smith", 15, "Machine Learning, Cloud Architecture");
-    mentor.display();
-
-    std::cout << "\nObjects will be destroyed when going out of scope:" << std::endl;
-}
-
-void demonstrateCopyConstructor()
-{
-    printSeparator("2. COPY CONSTRUCTOR - DEEP COPY NECESSITY");
-
-    std::cout << "\n--- Creating original Project ---" << std::endl;
-    Project original("Blockchain Solution", 18, 250000.0);
-
-    std::cout << "\n--- Copying Project (Deep Copy) ---" << std::endl;
-    Project copied = original;
-
-    std::cout << "\n--- Displaying both projects ---" << std::endl;
-    std::cout << "Original: ";
-    original.display();
-    std::cout << "Copied:   ";
-    copied.display();
-
-    std::cout << "\n--- Modifying copied project ---" << std::endl;
-    copied.setDescription("Modified Blockchain Solution");
-    copied.setBudget(300000.0);
-
-    std::cout << "Original (unchanged): ";
-    original.display();
-    std::cout << "Copied (modified):    ";
-    copied.display();
-
-    std::cout << "\n--- WHY DEEP COPY IS NEEDED ---" << std::endl;
-    std::cout << "Without a proper copy constructor, both objects would share" << std::endl;
-    std::cout << "the same memory address for 'description', leading to:" << std::endl;
-    std::cout << "  1. Changes in one object affect the other" << std::endl;
-    std::cout << "  2. Double-free error when both destructors try to delete same memory" << std::endl;
-
-    std::cout << "\n--- Destroying both projects ---" << std::endl;
-}
-
-void demonstrateMoveConstructor()
-{
-    printSeparator("3. MOVE CONSTRUCTOR - EFFICIENCY");
-
-    std::cout << "\n--- Creating a temporary Project ---" << std::endl;
-    auto createProject = []() -> Project
-    {
-        Project temp("Temporary IoT Project", 6, 80000.0);
-        std::cout << "Returning from function..." << std::endl;
-        return temp;
-    };
-
-    std::cout << "\n--- Using move semantics (efficient transfer) ---" << std::endl;
-    Project moved = createProject();
-    moved.display();
-
-    std::cout << "\n--- WHY MOVE IS BENEFICIAL ---" << std::endl;
-    std::cout << "Move constructor transfers ownership without copying:" << std::endl;
-    std::cout << "  1. No memory allocation for duplicate data" << std::endl;
-    std::cout << "  2. Much faster for large objects" << std::endl;
-    std::cout << "  3. Original object is left in valid but empty state" << std::endl;
-
-    std::cout << "\n--- Explicit move with std::move ---" << std::endl;
-    Project another("Another Project", 10, 120000.0);
-    Project movedAnother = std::move(another);
-    movedAnother.display();
-
-    std::cout << "\n--- Destroying moved objects ---" << std::endl;
-}
-
-void demonstrateEncapsulation()
-{
-    printSeparator("4. ENCAPSULATION - CONTROLLED ACCESS");
-
-    std::cout << "\n--- All members are private, accessed via getters/setters ---" << std::endl;
-    Project proj("Security System", 8, 100000.0);
-
-    std::cout << "\nAccessing private data through getters:" << std::endl;
-    std::cout << "  Description: " << proj.getDescription() << std::endl;
-    std::cout << "  Duration: " << proj.getDuration() << " months" << std::endl;
-    std::cout << "  Budget: $" << proj.getBudget() << std::endl;
-
-    std::cout << "\nModifying private data through setters:" << std::endl;
-    proj.setBudget(120000.0);
-    std::cout << "  New Budget: $" << proj.getBudget() << std::endl;
-
-    std::cout << "\n--- WHY ENCAPSULATION IS IMPORTANT ---" << std::endl;
-    std::cout << "  1. Protects data integrity (validation can be added in setters)" << std::endl;
-    std::cout << "  2. Internal implementation can change without affecting users" << std::endl;
-    std::cout << "  3. Provides clear interface for object interaction" << std::endl;
-}
-
-void demonstrateAssignmentOperators()
-{
-    printSeparator("5. ASSIGNMENT OPERATORS - EFFECTIVE C++");
-
-    std::cout << "\n--- Item 10: Assignment returns reference to *this ---" << std::endl;
-    Project p1("Project A", 10, 100000.0);
-    Project p2("Project B", 12, 150000.0);
-    Project p3("Project C", 8, 80000.0);
-
-    std::cout << "\nChaining assignments (a = b = c):" << std::endl;
-    p1 = p2 = p3;
-    std::cout << "All projects now have same data:" << std::endl;
-    p1.display();
-    p2.display();
-    p3.display();
-
-    std::cout << "\n--- Item 11: Handle self-assignment ---" << std::endl;
-    std::cout << "Assigning object to itself:" << std::endl;
-    p1 = p1;
-    std::cout << "Self-assignment handled correctly, object still valid:" << std::endl;
-    p1.display();
-
-    std::cout << "\n--- WHY SELF-ASSIGNMENT CHECK IS NEEDED ---" << std::endl;
-    std::cout << "Without check: operator= would delete resources before copying, " << std::endl;
-    std::cout << "leading to reading from freed memory!" << std::endl;
-
-    std::cout << "\n--- Item 12: Copy ALL parts of an object ---" << std::endl;
-    Mentor m1("Alice Johnson", 10, "DevOps");
-    Mentor m2("Bob Williams", 5, "Backend Development");
-    std::cout << "\nBefore assignment:" << std::endl;
-    m1.display();
-    m2.display();
-
-    std::cout << "\nAfter assignment (all members copied):" << std::endl;
-    m1 = m2;
-    m1.display();
-    m2.display();
-}
-
-void demonstrateComplexObjects()
-{
-    printSeparator("6. COMPLEX OBJECTS - COMPOSITION");
-
-    std::cout << "\n--- Creating Startup with Project and team ---" << std::endl;
-    Project proj("Mobile App", 10, 120000.0);
-    const char *team[] = {"Alice", "Bob", "Charlie"};
-    Startup startup("TechVenture", 500000.0, team, 3, proj);
-    startup.display();
-
-    std::cout << "\n--- Copying Startup (deep copy of all components) ---" << std::endl;
-    Startup startupCopy = startup;
-    startupCopy.display();
-
-    std::cout << "\n--- Creating Accelerator and adding startups ---" << std::endl;
-    Accelerator accelerator("Innovation Hub", 3);
-
-    Project proj2("Web Platform", 8, 90000.0);
-    const char *team2[] = {"David", "Eve"};
-    Startup startup2("WebCorp", 300000.0, team2, 2, proj2);
-
-    accelerator.addStartup(startup);
-    accelerator.addStartup(startup2);
-
-    accelerator.display();
-
-    std::cout << "\n--- All objects will be properly destroyed ---" << std::endl;
-}
-
-void demonstrateInitializationList()
-{
-    printSeparator("7. INITIALIZATION LIST VS ASSIGNMENT");
-
-    std::cout << "\n--- WHY USE INITIALIZATION LISTS ---" << std::endl;
-    std::cout << "Initialization lists are used in all constructors because:" << std::endl;
-    std::cout << "  1. More efficient (direct initialization vs default + assignment)" << std::endl;
-    std::cout << "  2. Required for const members and reference members" << std::endl;
-    std::cout << "  3. Required for base class initialization" << std::endl;
-    std::cout << "  4. Members are initialized in declaration order" << std::endl;
-
-    std::cout << "\nExample: Project constructor uses initialization list" << std::endl;
-    std::cout << "  Project::Project(...) : duration(dur), budget(budg) { ... }" << std::endl;
-
-    Project proj("Demo", 6, 50000.0);
-    proj.display();
-}
-
 int main()
 {
-    std::cout << "===============================================" << std::endl;
-    std::cout << "   PAOO LAB4 - C++ CONCEPTS DEMONSTRATION" << std::endl;
-    std::cout << "   Startup Accelerator Management System" << std::endl;
-    std::cout << "===============================================" << std::endl;
+    std::cout << "===== PAOO LAB4 - SIMPLE TESTS =====" << std::endl;
 
-    try
-    {
-        demonstrateBasicConstructionDestruction();
-        demonstrateCopyConstructor();
-        demonstrateMoveConstructor();
-        demonstrateEncapsulation();
-        demonstrateAssignmentOperators();
-        demonstrateComplexObjects();
-        demonstrateInitializationList();
+    // ============================================
+    // CERINȚA 1: CMake Build (structura proiectului)
+    // ============================================
+    std::cout << "\n1. BUILD cu CMake ✓" << std::endl;
+    std::cout << "   - Fișier: CMakeLists.txt" << std::endl;
+    std::cout << "   - Structură: src/, include/, build/" << std::endl;
 
-        printSeparator("ALL DEMONSTRATIONS COMPLETED");
-        std::cout << "\nKey Concepts Demonstrated:" << std::endl;
-        std::cout << "  [✓] CMake Build Structure" << std::endl;
-        std::cout << "  [✓] Encapsulation (private members)" << std::endl;
-        std::cout << "  [✓] Constructor Initialization Lists" << std::endl;
-        std::cout << "  [✓] Heap Memory Management (new/delete)" << std::endl;
-        std::cout << "  [✓] Copy Constructor (Deep Copy)" << std::endl;
-        std::cout << "  [✓] Move Constructor" << std::endl;
-        std::cout << "  [✓] Copy Assignment Operator" << std::endl;
-        std::cout << "  [✓] Move Assignment Operator" << std::endl;
-        std::cout << "  [✓] Effective C++ Items 10, 11, 12" << std::endl;
-        std::cout << "  [✓] Singleton Design Pattern (Logger)" << std::endl;
-    }
-    catch (const std::exception &e)
+    // ============================================
+    // CERINȚA 2: Encapsulare
+    // ============================================
+    std::cout << "\n2. ENCAPSULARE (membrii privați + getters/setters)" << std::endl;
+    Project proj("Mobile App", 6, 50000.0);
+    std::cout << "   [Project] Membrii privați:" << std::endl;
+    std::cout << "   - char* description (PRIVAT)" << std::endl;
+    std::cout << "   - int duration (PRIVAT)" << std::endl;
+    std::cout << "   - double budget (PRIVAT)" << std::endl;
+    std::cout << "   Acces prin getters:" << std::endl;
+    std::cout << "   - getDescription(): " << proj.getDescription() << std::endl;
+    std::cout << "   - getDuration(): " << proj.getDuration() << " months" << std::endl;
+    std::cout << "   - getBudget(): $" << proj.getBudget() << std::endl;
+
+    // ============================================
+    // CERINȚA 3: Inițializarea membrilor din constructor
+    // ============================================
+    std::cout << "\n3. INITIALIZATION LIST (membrii inițializați în constructor)" << std::endl;
+    std::cout << "   [Project] Constructor: Project::Project()" << std::endl;
+    std::cout << "   : duration(dur), budget(budg)  ← INITIALIZATION LIST" << std::endl;
+    std::cout << "   ✓ Membrii sunt inițializați ÎNAINTE de body" << std::endl;
+
+    // ============================================
+    // CERINȚA 4: Eliberarea heap-ului în destructor
+    // ============================================
+    std::cout << "\n4. DESTRUCTOR - Eliberare Heap" << std::endl;
+    std::cout << "   [Project] Destructor:" << std::endl;
+    std::cout << "   delete[] description;  ← Eliberează memoria alocată" << std::endl;
     {
-        std::cerr << "Error: " << e.what() << std::endl;
-        return 1;
+        Project tempProj("Temp Project", 3, 10000.0);
+        std::cout << "   Created tempProj (pe stack)" << std::endl;
     }
+    std::cout << "   ✓ tempProj destroyed, heap freed" << std::endl;
+
+    // ============================================
+    // CERINȚA 5: Copy Constructor
+    // ============================================
+    std::cout << "\n5. COPY CONSTRUCTOR (Deep Copy)" << std::endl;
+    Project original("AI Platform", 12, 150000.0);
+    std::cout << "   Original: " << original.getDescription() << std::endl;
+
+    Project copied = original;
+    std::cout << "   Copied: " << copied.getDescription() << std::endl;
+
+    copied.setDescription("Modified AI Platform");
+    std::cout << "   After modification:" << std::endl;
+    std::cout << "   - Original: " << original.getDescription() << " (nemodificat ✓)" << std::endl;
+    std::cout << "   - Copied: " << copied.getDescription() << " (modificat)" << std::endl;
+    std::cout << "   ✓ Deep copy SUCCESS - obiecte independente" << std::endl;
+
+    // ============================================
+    // CERINȚA 6: Move Constructor
+    // ============================================
+    std::cout << "\n6. MOVE CONSTRUCTOR (Transfer Ownership)" << std::endl;
+
+    auto createProject = []() -> Project
+    {
+        Project temp("Web Platform", 8, 90000.0);
+        return temp; // ← MOVE CONSTRUCTOR triggered
+    };
+
+    Project moved = createProject();
+    std::cout << "   Temporary object moved: " << moved.getDescription() << std::endl;
+    std::cout << "   ✓ Move semantics - no copy overhead" << std::endl;
+
+    // Explicit move
+    Project another("Cloud Service", 10, 120000.0);
+    Project movedAnother = std::move(another);
+    std::cout << "   Explicit std::move: " << movedAnother.getDescription() << std::endl;
+    std::cout << "   ✓ Move constructor called explicitly" << std::endl;
+
+    // ============================================
+    // EFFECTIVE C++ ITEMS - DEMONSTRAȚII COMPLETE
+    // ============================================
+    std::cout << "\n\n═══════════════════════════════════════════════════════" << std::endl;
+    std::cout << "  EFFECTIVE C++ ITEMS 10, 11, 12 - DEMONSTRAȚII" << std::endl;
+    std::cout << "═══════════════════════════════════════════════════════\n"
+              << std::endl;
+
+    // ============================================
+    // ITEM 10: Have assignment operators return a reference to *this
+    // ============================================
+    std::cout << "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" << std::endl;
+    std::cout << "ITEM 10: Assignment operators return reference to *this" << std::endl;
+    std::cout << "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+              << std::endl;
+
+    std::cout << "🎯 SCOPUL: Permite CHAIN ASSIGNMENT (a = b = c)\n"
+              << std::endl;
+
+    std::cout << "📌 IMPLEMENTARE în Project.cpp:" << std::endl;
+    std::cout << "   Project& operator=(const Project& other) {" << std::endl;
+    std::cout << "       // ... copiere date ..." << std::endl;
+    std::cout << "       return *this;  ← ESENȚIAL pentru chain assignment" << std::endl;
+    std::cout << "   }\n"
+              << std::endl;
+
+    std::cout << "📝 DEMONSTRAȚIE - Chain Assignment:" << std::endl;
+    Project p1("Project Alpha", 3, 15000.0);
+    Project p2("Project Beta", 6, 25000.0);
+    Project p3("Project Gamma", 9, 35000.0);
+
+    std::cout << "\n   Starea inițială:" << std::endl;
+    std::cout << "   p1: " << p1.getDescription() << " (budget: $" << p1.getBudget() << ")" << std::endl;
+    std::cout << "   p2: " << p2.getDescription() << " (budget: $" << p2.getBudget() << ")" << std::endl;
+    std::cout << "   p3: " << p3.getDescription() << " (budget: $" << p3.getBudget() << ")" << std::endl;
+
+    std::cout << "\n   Executăm: p1 = p2 = p3;" << std::endl;
+    std::cout << "   ├─ Evaluare de la DREAPTA la STÂNGA" << std::endl;
+    std::cout << "   ├─ Pasul 1: p2 = p3  (p2 devine copia lui p3)" << std::endl;
+    std::cout << "   ├─ p2.operator=(p3) returnează p2& (referință)" << std::endl;
+    std::cout << "   └─ Pasul 2: p1 = p2  (p1 devine copia lui p2)" << std::endl;
+
+    p1 = p2 = p3; // ← CHAIN ASSIGNMENT!
+
+    std::cout << "\n   După chain assignment:" << std::endl;
+    std::cout << "   p1: " << p1.getDescription() << " (budget: $" << p1.getBudget() << ")" << std::endl;
+    std::cout << "   p2: " << p2.getDescription() << " (budget: $" << p2.getBudget() << ")" << std::endl;
+    std::cout << "   p3: " << p3.getDescription() << " (budget: $" << p3.getBudget() << ")" << std::endl;
+    std::cout << "   ✅ TOATE au aceleași valori ca p3!" << std::endl;
+
+    std::cout << "\n   ❌ CE S-AR ÎNTÂMPLA DACĂ operator= ar returna VOID?" << std::endl;
+    std::cout << "      void operator=(const Project& other) { ... }" << std::endl;
+    std::cout << "      p1 = p2 = p3;" << std::endl;
+    std::cout << "      └─ EROARE DE COMPILARE! Nu poți asigna void lui p1" << std::endl;
+    std::cout << "      └─ Chain assignment ar fi IMPOSIBIL!\n"
+              << std::endl;
+
+    // ============================================
+    // ITEM 11: Handle assignment to self in operator=
+    // ============================================
+    std::cout << "\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" << std::endl;
+    std::cout << "ITEM 11: Handle assignment to self in operator=" << std::endl;
+    std::cout << "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+              << std::endl;
+
+    std::cout << "🎯 SCOPUL: Evită CRASH-uri și comportament nedefinit în self-assignment\n"
+              << std::endl;
+
+    std::cout << "📌 IMPLEMENTARE în Project.cpp:" << std::endl;
+    std::cout << "   Project& operator=(const Project& other) {" << std::endl;
+    std::cout << "       if (this == &other) {  ← VERIFICARE ESENȚIALĂ" << std::endl;
+    std::cout << "           return *this;       ← Returnează imediat dacă e același obiect" << std::endl;
+    std::cout << "       }" << std::endl;
+    std::cout << "       delete[] description;   ← Altfel ar șterge memoria pe care o citim!" << std::endl;
+    std::cout << "       // ... copiere din other ..." << std::endl;
+    std::cout << "   }\n"
+              << std::endl;
+
+    std::cout << "❓ DE CE AVEM NEVOIE DE ACEASTĂ VERIFICARE?\n"
+              << std::endl;
+    std::cout << "   Scenariul FĂRĂ verificare (if this == &other):" << std::endl;
+    std::cout << "   ┌─────────────────────────────────────────────────┐" << std::endl;
+    std::cout << "   │ Project p(\"Test\", 5, 1000.0);                  │" << std::endl;
+    std::cout << "   │ p = p;  // Self-assignment                      │" << std::endl;
+    std::cout << "   │                                                  │" << std::endl;
+    std::cout << "   │ În operator=(const Project& other):             │" << std::endl;
+    std::cout << "   │ // this == &p, other == p (ACELAȘI OBIECT!)     │" << std::endl;
+    std::cout << "   │                                                  │" << std::endl;
+    std::cout << "   │ delete[] description; ❌ Șterge memoria         │" << std::endl;
+    std::cout << "   │ // Acum description pointează la memorie ștearsă│" << std::endl;
+    std::cout << "   │                                                  │" << std::endl;
+    std::cout << "   │ strcpy(description, other.description); ❌      │" << std::endl;
+    std::cout << "   │ // other.description e TOT memoria ștearsă!     │" << std::endl;
+    std::cout << "   │ // → UNDEFINED BEHAVIOR / CRASH!                │" << std::endl;
+    std::cout << "   └─────────────────────────────────────────────────┘\n"
+              << std::endl;
+
+    std::cout << "📝 DEMONSTRAȚIE - Self-Assignment:" << std::endl;
+    Project pSelf("Self-Assignment Test", 7, 40000.0);
+    std::cout << "\n   Obiect înainte: " << pSelf.getDescription()
+              << " (budget: $" << pSelf.getBudget() << ")" << std::endl;
+
+    std::cout << "\n   Executăm: pSelf = pSelf;  (SELF-ASSIGNMENT!)" << std::endl;
+    std::cout << "   ├─ În operator=: this = " << &pSelf << std::endl;
+    std::cout << "   ├─ În operator=: &other = " << &pSelf << std::endl;
+    std::cout << "   └─ this == &other? TRUE → DETECTAT!" << std::endl;
+
+    pSelf = pSelf; // Self-assignment protejat!
+
+    std::cout << "\n   Obiect după: " << pSelf.getDescription()
+              << " (budget: $" << pSelf.getBudget() << ")" << std::endl;
+    std::cout << "   ✅ Obiectul este INTACT! Verificarea a prevenit CRASH-ul!\n"
+              << std::endl;
+
+    std::cout << "   📋 SITUAȚII când poate apărea self-assignment:\n"
+              << std::endl;
+    std::cout << "   1. Direct (rar):        p = p;" << std::endl;
+    std::cout << "   2. Prin referințe:     Project& ref = p; p = ref;" << std::endl;
+    std::cout << "   3. În funcții:         void assign(Project& a, Project& b) { a = b; }" << std::endl;
+    std::cout << "                          assign(p, p);  ← self-assignment ascuns!" << std::endl;
+    std::cout << "   4. În containere:      vector[i] = vector[i];\n"
+              << std::endl;
+
+    // ============================================
+    // ITEM 12: Copy all parts of an object
+    // ============================================
+    std::cout << "\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" << std::endl;
+    std::cout << "ITEM 12: Copy all parts of an object" << std::endl;
+    std::cout << "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+              << std::endl;
+
+    std::cout << "🎯 SCOPUL: Asigură că TOATE membrii sunt copiați corect\n"
+              << std::endl;
+
+    std::cout << "⚠️  ATENȚIE la:" << std::endl;
+    std::cout << "   1. Toți membrii (variabile) trebuie copiați" << std::endl;
+    std::cout << "   2. Pointerii necesită DEEP COPY (nu shallow copy)" << std::endl;
+    std::cout << "   3. Constructor de copiere ȘI operator= trebuie implementate" << std::endl;
+    std::cout << "   4. La moștenire: trebuie copiat și base class!\n"
+              << std::endl;
+
+    std::cout << "📌 IMPLEMENTARE în Startup.cpp:" << std::endl;
+    std::cout << "   Clasa Startup are 5 membri:" << std::endl;
+    std::cout << "   ├─ char* name;              (pointer → deep copy)" << std::endl;
+    std::cout << "   ├─ double funding;          (value)" << std::endl;
+    std::cout << "   ├─ char** teamMembers;      (array de pointeri → deep copy)" << std::endl;
+    std::cout << "   ├─ int teamSize;            (value)" << std::endl;
+    std::cout << "   └─ Project* mainProject;    (pointer la obiect → deep copy)\n"
+              << std::endl;
+
+    std::cout << "   Copy Constructor:" << std::endl;
+    std::cout << "   Startup(const Startup& other)" << std::endl;
+    std::cout << "       : funding(other.funding), teamSize(other.teamSize) {" << std::endl;
+    std::cout << "       name = new char[strlen(other.name) + 1];  ← DEEP COPY" << std::endl;
+    std::cout << "       strcpy(name, other.name);" << std::endl;
+    std::cout << "       // ... copiere teamMembers (deep copy array) ..." << std::endl;
+    std::cout << "       mainProject = new Project(*other.mainProject); ← DEEP COPY" << std::endl;
+    std::cout << "   }\n"
+              << std::endl;
+
+    std::cout << "📝 DEMONSTRAȚIE - Copierea TUTUROR părților:" << std::endl;
+
+    const char *team1[] = {"Alice", "Bob", "Charlie"};
+    Startup startup1("TechStartup Original", 100000.0, team1, 3,
+                     Project("Mobile App MVP", 6, 50000.0));
+
+    std::cout << "\n   Obiect Original (startup1):" << std::endl;
+    std::cout << "   ├─ Name: " << startup1.getName() << std::endl;
+    std::cout << "   ├─ Funding: $" << startup1.getFunding() << std::endl;
+    std::cout << "   ├─ Team Size: " << startup1.getTeamSize() << std::endl;
+    std::cout << "   └─ Project: " << startup1.getMainProject()->getDescription() << std::endl;
+
+    std::cout << "\n   Creăm copia: Startup startup2 = startup1;" << std::endl;
+    Startup startup2 = startup1; // Copy constructor
+
+    std::cout << "\n   Obiect Copiat (startup2):" << std::endl;
+    std::cout << "   ├─ Name: " << startup2.getName() << std::endl;
+    std::cout << "   ├─ Funding: $" << startup2.getFunding() << std::endl;
+    std::cout << "   ├─ Team Size: " << startup2.getTeamSize() << std::endl;
+    std::cout << "   └─ Project: " << startup2.getMainProject()->getDescription() << std::endl;
+    std::cout << "   ✅ TOATE valorile copiate corect!\n"
+              << std::endl;
+
+    std::cout << "   🔍 VERIFICARE: Sunt obiecte INDEPENDENTE? (deep copy)" << std::endl;
+    std::cout << "   Adrese de memorie diferite?" << std::endl;
+    std::cout << "   ├─ startup1.name:    " << (void *)startup1.getName() << std::endl;
+    std::cout << "   ├─ startup2.name:    " << (void *)startup2.getName() << " ← Adresă diferită!" << std::endl;
+    std::cout << "   ├─ startup1.project: " << (void *)startup1.getMainProject() << std::endl;
+    std::cout << "   └─ startup2.project: " << (void *)startup2.getMainProject() << " ← Adresă diferită!" << std::endl;
+    std::cout << "   ✅ Deep copy reușit - obiecte complet INDEPENDENTE!\n"
+              << std::endl;
+
+    std::cout << "   ❌ CE S-AR ÎNTÂMPLA cu SHALLOW COPY?" << std::endl;
+    std::cout << "      // Shallow copy (GREȘIT!):" << std::endl;
+    std::cout << "      name = other.name;  ← Copiază doar POINTERUL" << std::endl;
+    std::cout << "      // Ambele obiecte ar pointa la ACEEAȘI memorie!" << std::endl;
+    std::cout << "      // La distrugere: delete pe aceeași memorie de 2 ori → CRASH!" << std::endl;
+
+    std::cout << "\n\n═══════════════════════════════════════════════════════" << std::endl;
+    std::cout << "  REZUMAT EFFECTIVE C++ ITEMS" << std::endl;
+    std::cout << "═══════════════════════════════════════════════════════\n"
+              << std::endl;
+    std::cout << "✅ ITEM 10: return *this → Permite chain assignment (a=b=c)" << std::endl;
+    std::cout << "✅ ITEM 11: if(this==&other) → Protecție împotriva self-assignment" << std::endl;
+    std::cout << "✅ ITEM 12: Deep copy → Copiază TOATE părțile, inclusiv pointeri\n"
+              << std::endl;
 
     return 0;
 }
